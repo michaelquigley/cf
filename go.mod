@@ -1,4 +1,4 @@
-module github.com/openziti-incubator/cf
+module github.com/michaelquigley/cf
 
 go 1.16
 
