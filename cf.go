@@ -80,27 +80,60 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 						} else if nestedType.Kind() == reflect.Slice {
 							sliceType := valueFromPtr(nestedType.Elem())
 							if reflect.ValueOf(v).Kind() == reflect.Slice { // the data should also be a slice
-								for j := 0; j < reflect.ValueOf(v).Len(); j++ { // iterate over the available data
-									elem := instantiateAsPtr(sliceType, opt)
-									sliceV := reflect.ValueOf(v).Index(j).Interface()
-									if handler, found := opt.Setters[sliceType]; found {
-										if err := handler(sliceV, reflect.ValueOf(elem)); err != nil {
-											return errors.Wrapf(err, "field '%s'", fd.name)
-										}
-									} else if sliceType.Kind() == reflect.Struct {
-										if subData, ok := sliceV.(map[string]interface{}); ok {
-											if err := Bind(elem, subData, opt); err != nil {
+								if sliceType.Kind() != reflect.Interface {
+									for j := 0; j < reflect.ValueOf(v).Len(); j++ { // iterate over the available data
+										elem := instantiateAsPtr(sliceType, opt)
+										sliceV := reflect.ValueOf(v).Index(j).Interface()
+										if handler, found := opt.Setters[sliceType]; found {
+											if err := handler(sliceV, reflect.ValueOf(elem)); err != nil {
 												return errors.Wrapf(err, "field '%s'", fd.name)
 											}
+										} else if sliceType.Kind() == reflect.Struct {
+											if subData, ok := sliceV.(map[string]interface{}); ok {
+												if err := Bind(elem, subData, opt); err != nil {
+													return errors.Wrapf(err, "field '%s'", fd.name)
+												}
+											} else {
+												return errors.Errorf("invalid sub map for field '%s'", fd.name)
+											}
+										}
+
+										if nestedType.Elem().Kind() == reflect.Ptr {
+											cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem)))
 										} else {
-											return errors.Errorf("invalid sub map for field '%s'", fd.name)
+											cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem).Elem()))
 										}
 									}
 
-									if nestedType.Elem().Kind() == reflect.Ptr {
-										cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem)))
-									} else {
-										cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem).Elem()))
+								} else {
+									for j := 0; j < reflect.ValueOf(v).Len(); j++ { // iterate over the available data
+										sliceV := reflect.ValueOf(v).Index(j).Interface()
+										if subData, ok := sliceV.(map[string]interface{}); ok {
+											if t, ok := subData["type"]; ok {
+												if t, ok := t.(string); ok {
+													if opt.FlexibleSetters != nil {
+														if fs, found := opt.FlexibleSetters[t]; found {
+															elem, err := fs(v, opt)
+															if err != nil {
+																return errors.Wrapf(err, "flexible setter for field '%v'", fd.name)
+															}
+															cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem)))
+
+														} else {
+															return errors.Errorf("no flexible setter for field '%v'", fd.name)
+														}
+													} else {
+														return errors.Errorf("no flexible setters found for field '%v'", fd.name)
+													}
+												} else {
+													return errors.Errorf("'type' data not string value for field '%v'", fd.name)
+												}
+											} else {
+												return errors.Errorf("'type' data not found string value for field '%v'", fd.name)
+											}
+										} else {
+											return errors.Errorf("not data map for field '%v'", fd.name)
+										}
 									}
 								}
 

@@ -305,7 +305,7 @@ func TestFlexibleSetterArray(t *testing.T) {
 
 	var data = map[string]interface{}{
 		"id": "flexible_setter_array",
-		"flexible": []map[string]interface{}{
+		"flexible_array": []map[string]interface{}{
 			{
 				"type": "a",
 			},
@@ -317,10 +317,12 @@ func TestFlexibleSetterArray(t *testing.T) {
 
 	opt := DefaultOptions()
 	opt = opt.AddFlexibleSetter("a", func(v interface{}, opt *Options) (interface{}, error) { return &flexibleType{"a"}, nil })
-	opt = opt.AddFlexibleSetter("b", func(v interface{}, opt *Options) (interface{}, error) { return &flexibleType{"b"}, nil })
+	opt = opt.AddFlexibleSetter("b", func(v interface{}, opt *Options) (interface{}, error) { return flexibleType{"b"}, nil })
 
 	err := Bind(root, data, opt)
 	assert.Nil(t, err)
 	assert.NotNil(t, root.FlexibleArray)
 	assert.Equal(t, 2, len(root.FlexibleArray))
+	assert.Equal(t, "a", root.FlexibleArray[0].(*flexibleType).value)
+	assert.Equal(t, "b", root.FlexibleArray[1].(flexibleType).value)
 }
