@@ -296,3 +296,31 @@ func TestFlexibleSetter(t *testing.T) {
 	assert.Equal(t, reflect.TypeOf(root.Flexible), reflect.TypeOf(&flexibleType{}))
 	assert.Equal(t, "a value", root.Flexible.(*flexibleType).value)
 }
+
+func TestFlexibleSetterArray(t *testing.T) {
+	root := &struct {
+		Id            string
+		FlexibleArray []interface{}
+	}{}
+
+	var data = map[string]interface{}{
+		"id": "flexible_setter_array",
+		"flexible": []map[string]interface{}{
+			{
+				"type": "a",
+			},
+			{
+				"type": "b",
+			},
+		},
+	}
+
+	opt := DefaultOptions()
+	opt = opt.AddFlexibleSetter("a", func(v interface{}, opt *Options) (interface{}, error) { return &flexibleType{"a"}, nil })
+	opt = opt.AddFlexibleSetter("b", func(v interface{}, opt *Options) (interface{}, error) { return &flexibleType{"b"}, nil })
+
+	err := Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.NotNil(t, root.FlexibleArray)
+	assert.Equal(t, 2, len(root.FlexibleArray))
+}
