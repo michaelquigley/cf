@@ -273,7 +273,7 @@ type flexibleType struct {
 	value string
 }
 
-func TestNestedEmptyInterface(t *testing.T) {
+func TestFlexibleSetter(t *testing.T) {
 	root := &struct {
 		Id       string
 		Flexible interface{}
