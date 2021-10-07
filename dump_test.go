@@ -30,6 +30,11 @@ type dumpCfNested struct {
 	Tiny dumpCfTiny
 }
 
+type dumpCfNestedPtr struct {
+	Name string
+	Tiny *dumpCfTiny
+}
+
 type dumpCfNestedArray struct {
 	Name   string
 	Tinies []*dumpCfTiny
@@ -42,6 +47,11 @@ func TestDumpStruct(t *testing.T) {
 	cf2 := &dumpCfNested{Name: "yuu"}
 	cf2.Tiny.Id = "yuu_id"
 	fmt.Println(Dump(cf2, DefaultOptions()))
+}
+
+func TestDumpNilStruct(t *testing.T) {
+	cf := &dumpCfNestedPtr{Name: "name"}
+	fmt.Println(Dump(cf, DefaultOptions()))
 }
 
 func TestDumpNestedArray(t *testing.T) {

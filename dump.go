@@ -65,7 +65,11 @@ func dumpValue(v reflect.Value) string {
 	if v.Kind() == reflect.String {
 		return fmt.Sprintf("\"%v\"", v.Interface())
 	} else {
-		return fmt.Sprintf("%v", v.Interface())
+		if v.IsValid() {
+			return fmt.Sprintf("%v", v.Interface())
+		} else {
+			return "<nil>"
+		}
 	}
 }
 
