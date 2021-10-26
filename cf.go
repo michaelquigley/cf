@@ -120,7 +120,7 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 															cfV.Field(i).Set(reflect.Append(cfV.Field(i), reflect.ValueOf(elem)))
 
 														} else {
-															return errors.Errorf("no flexible setter for field '%v'", fd.name)
+															return errors.Errorf("no flexible setter for field '%v' with type '%v'", fd.name, t)
 														}
 													} else {
 														return errors.Errorf("no flexible setters found for field '%v'", fd.name)
@@ -153,7 +153,7 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 												}
 												cfV.Field(i).Set(reflect.ValueOf(value))
 											} else {
-												return errors.Errorf("no flexible setter for field '%s'", fd.name)
+												return errors.Errorf("no flexible setter for field '%s' with type '%s'", fd.name, t)
 											}
 										} else {
 											return errors.Errorf("no flexible setters found for field '%s'", fd.name)
