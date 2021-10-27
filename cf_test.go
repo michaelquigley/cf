@@ -326,3 +326,40 @@ func TestFlexibleSetterArray(t *testing.T) {
 	assert.Equal(t, "a", root.FlexibleArray[0].(*flexibleType).value)
 	assert.Equal(t, "b", root.FlexibleArray[1].(flexibleType).value)
 }
+
+func TestVariableResolver(t *testing.T) {
+	root := &struct{
+		Id string
+	}{}
+
+	data := map[string]interface{}{
+		"id": "${id}",
+	}
+
+	opt := DefaultOptions()
+	opt = opt.AddVariableResolver(func(vname string) (interface{}, bool) {
+		if vname == "id" {
+			return "oh.wow", true
+		}
+		return nil, false
+	})
+
+	err := Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.Equal(t, "oh.wow", root.Id)
+
+	data = map[string]interface{}{
+		"id": "${missing}",
+	}
+
+	err = Bind(root, data, opt)
+	assert.NotNil(t, err)
+
+	data = map[string]interface{}{
+		"id": "regular",
+	}
+
+	err = Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.Equal(t, "regular", root.Id)
+}

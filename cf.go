@@ -54,7 +54,15 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 
 						if setter, found := opt.Setters[nestedType]; found {
 							// setter-based type
-							if err := setter(v, cfV.Field(i)); err != nil {
+							setterv := v
+							if vname, ok := variableReference(v); ok {
+								if vvalue, found := opt.resolveVariable(vname); found {
+									setterv = vvalue
+								} else {
+									return errors.Errorf("unable to resolve variable '${%s}' for field '%v'", vname, fd.name)
+								}
+							}
+							if err := setter(setterv, cfV.Field(i)); err != nil {
 								return errors.Wrapf(err, "field '%s'", fd.name)
 							}
 						} else if nestedType.Kind() == reflect.Struct || (nestedType.Kind() == reflect.Ptr && nestedType.Elem().Kind() == reflect.Struct) {

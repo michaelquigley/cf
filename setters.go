@@ -237,3 +237,4 @@ func timeDurationSetter(v interface{}, f reflect.Value) error {
 	}
 	return errors.Errorf("got [%s], expected [%s]", reflect.TypeOf(v), f.Type())
 }
+

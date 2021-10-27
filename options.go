@@ -26,13 +26,15 @@ type Setter func(v interface{}, f reflect.Value) error
 type FlexibleSetter func(v interface{}, opt *Options) (interface{}, error)
 type Wiring func(cf interface{}) error
 type NameConverter func(f reflect.StructField) string
+type VariableResolver func(name string) (interface{}, bool)
 
 type Options struct {
-	Instantiators   map[reflect.Type]Instantiator
-	Setters         map[reflect.Type]Setter
-	FlexibleSetters map[string]FlexibleSetter
-	Wirings         map[reflect.Type][]Wiring
-	NameConverter   NameConverter
+	Instantiators         map[reflect.Type]Instantiator
+	Setters               map[reflect.Type]Setter
+	FlexibleSetters       map[string]FlexibleSetter
+	Wirings               map[reflect.Type][]Wiring
+	NameConverter         NameConverter
+	VariableResolverChain []VariableResolver
 }
 
 func DefaultOptions() *Options {
@@ -93,4 +95,18 @@ func (opt *Options) AddWiring(t reflect.Type, w Wiring) *Options {
 func (opt *Options) SetNameConverter(nc NameConverter) *Options {
 	opt.NameConverter = nc
 	return opt
+}
+
+func (opt *Options) AddVariableResolver(vr VariableResolver) *Options {
+	opt.VariableResolverChain = append(opt.VariableResolverChain, vr)
+	return opt
+}
+
+func (opt *Options) resolveVariable(vname string) (interface{}, bool) {
+	for _, vr := range opt.VariableResolverChain {
+		if vvalue, found := vr(vname); found {
+			return vvalue, true
+		}
+	}
+	return nil, false
 }
