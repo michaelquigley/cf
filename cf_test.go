@@ -337,7 +337,7 @@ func TestVariableResolver(t *testing.T) {
 	}
 
 	opt := DefaultOptions()
-	opt = opt.AddVariableResolver(func(vname string) (interface{}, bool) {
+	opt.AddVariableResolver(func(vname string) (interface{}, bool) {
 		if vname == "id" {
 			return "oh.wow", true
 		}
@@ -354,6 +354,17 @@ func TestVariableResolver(t *testing.T) {
 
 	err = Bind(root, data, opt)
 	assert.NotNil(t, err)
+
+	opt.AddVariableResolver(func(vname string) (interface{}, bool) {
+		if vname == "missing" {
+			return "found", true
+		}
+		return nil, false
+	})
+
+	err = Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.Equal(t, "found", root.Id)
 
 	data = map[string]interface{}{
 		"id": "regular",
