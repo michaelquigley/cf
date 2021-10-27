@@ -52,9 +52,9 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 					if cfV.Field(i).CanSet() {
 						nestedType := cfV.Type().Field(i).Type
 
-						if handler, found := opt.Setters[nestedType]; found {
-							// handler-based type
-							if err := handler(v, cfV.Field(i)); err != nil {
+						if setter, found := opt.Setters[nestedType]; found {
+							// setter-based type
+							if err := setter(v, cfV.Field(i)); err != nil {
 								return errors.Wrapf(err, "field '%s'", fd.name)
 							}
 						} else if nestedType.Kind() == reflect.Struct || (nestedType.Kind() == reflect.Ptr && nestedType.Elem().Kind() == reflect.Struct) {
