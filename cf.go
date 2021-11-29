@@ -62,7 +62,7 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 									return errors.Errorf("unable to resolve variable '${%s}' for field '%v'", vname, fd.name)
 								}
 							}
-							if err := setter(setterv, cfV.Field(i)); err != nil {
+							if err := setter(setterv, cfV.Field(i), opt); err != nil {
 								return errors.Wrapf(err, "field '%s'", fd.name)
 							}
 						} else if nestedType.Kind() == reflect.Struct || (nestedType.Kind() == reflect.Ptr && nestedType.Elem().Kind() == reflect.Struct) {
@@ -93,7 +93,7 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 										elem := instantiateAsPtr(sliceType, opt)
 										sliceV := reflect.ValueOf(v).Index(j).Interface()
 										if handler, found := opt.Setters[sliceType]; found {
-											if err := handler(sliceV, reflect.ValueOf(elem)); err != nil {
+											if err := handler(sliceV, reflect.ValueOf(elem), opt); err != nil {
 												return errors.Wrapf(err, "field '%s'", fd.name)
 											}
 										} else if sliceType.Kind() == reflect.Struct {

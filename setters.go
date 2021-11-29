@@ -212,6 +212,13 @@ func boolSetter(v interface{}, f reflect.Value, _ *Options) error {
 
 func stringSetter(v interface{}, f reflect.Value, opt *Options) error {
 	if vt, ok := v.(string); ok {
+		if inlineVariablesFound(vt) {
+			replaced, err := replaceInlineVariables(vt, opt)
+			if err != nil {
+				return err
+			}
+			vt = replaced
+		}
 		if f.Kind() == reflect.Ptr {
 			f.Elem().SetString(vt)
 		} else {

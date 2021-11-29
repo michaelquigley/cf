@@ -374,3 +374,28 @@ func TestVariableResolver(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "regular", root.Id)
 }
+
+func TestInlineVariables(t *testing.T) {
+	root := &struct{
+		Id string
+	}{}
+
+	data := map[string]interface{}{
+		"id": "/hello/world/${a}/and/${b}",
+	}
+
+	opt := DefaultOptions()
+	opt.AddVariableResolver(func(vname string) (interface{}, bool) {
+		switch vname {
+		case "a":
+			return "oh", true
+		case "b":
+			return "wow", true
+		}
+		return nil, false
+	})
+
+	err := Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.Equal(t, "/hello/world/oh/and/wow", root.Id)
+}
