@@ -22,7 +22,7 @@ import (
 )
 
 type Instantiator func() interface{}
-type Setter func(v interface{}, f reflect.Value) error
+type Setter func(v interface{}, f reflect.Value, opt *Options) error
 type FlexibleSetter func(v interface{}, opt *Options) (interface{}, error)
 type Wiring func(cf interface{}) error
 type NameConverter func(f reflect.StructField) string
