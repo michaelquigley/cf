@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	variableRegex = regexp.MustCompile("^\\$\\{([a-zA-Z0-9_.]+)\\}")
+	variableRegex = regexp.MustCompile("^\\$\\{([a-zA-Z0-9_.]+)\\}$")
 	inlineVariableRegex = regexp.MustCompile("\\$\\{([a-zA-Z0-9_.]+)\\}")
 }
 
