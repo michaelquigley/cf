@@ -17,6 +17,7 @@
 package cf
 
 import (
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -398,4 +399,57 @@ func TestInlineVariables(t *testing.T) {
 	err := Bind(root, data, opt)
 	assert.Nil(t, err)
 	assert.Equal(t, "/hello/world/oh/and/wow", root.Id)
+}
+
+func TestCustomSetter(t *testing.T) {
+	type CustomEnum uint8
+	const (
+		Val1 CustomEnum = iota
+		Val2
+	)
+	type SubStruct struct {
+		Val CustomEnum
+	}
+
+	root := &struct{
+		Subs []*SubStruct
+	}{}
+
+	data := map[string]interface{}{
+		"subs": []interface{}{
+			map[string]interface{}{
+				"val": "Val1",
+			},
+			map[string]interface{}{
+				"val": "Val2",
+			},
+		},
+	}
+
+	opt := DefaultOptions()
+	opt.AddSetter(reflect.TypeOf(*(new(CustomEnum))), func(v interface{}, f reflect.Value, opt *Options) error {
+		if vt, ok := v.(string); ok {
+			var vv CustomEnum
+			switch vt {
+			case "Val1":
+				vv = Val1
+			case "Val2":
+				vv = Val2
+			default:
+				return errors.Errorf("invalid custom enum '%v'", vt)
+			}
+			if f.Kind() == reflect.Ptr {
+				f.Elem().SetUint(uint64(vv))
+			} else {
+				f.SetUint(uint64(vv))
+			}
+			return nil
+		}
+		return errors.Errorf("got [%s], expected [%s]", reflect.TypeOf(v), f.Type())
+	})
+	err := Bind(root, data, opt)
+	assert.Nil(t, err)
+	assert.Equal(t, 2, len(root.Subs))
+	assert.Equal(t, Val1, root.Subs[0].Val)
+	assert.Equal(t, Val2, root.Subs[1].Val)
 }
