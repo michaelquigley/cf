@@ -401,7 +401,7 @@ func TestInlineVariables(t *testing.T) {
 	assert.Equal(t, "/hello/world/oh/and/wow", root.Id)
 }
 
-func TestCustomSetter(t *testing.T) {
+func TestCustomEnum(t *testing.T) {
 	type CustomEnum uint8
 	const (
 		Val1 CustomEnum = iota
