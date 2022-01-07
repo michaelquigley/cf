@@ -194,6 +194,13 @@ func float64Setter(v interface{}, f reflect.Value, _ *Options) error {
 			f.SetFloat(vt)
 		}
 		return nil
+	} else if vt, ok := v.(int); ok {
+		if f.Kind() == reflect.Ptr {
+			f.Elem().SetFloat(float64(vt))
+		} else {
+			f.SetFloat(float64(vt))
+		}
+		return nil
 	}
 	return errors.Errorf("got [%s], expected [%s]", reflect.TypeOf(v), f.Type())
 }
@@ -244,4 +251,3 @@ func timeDurationSetter(v interface{}, f reflect.Value, _ *Options) error {
 	}
 	return errors.Errorf("got [%s], expected [%s]", reflect.TypeOf(v), f.Type())
 }
-

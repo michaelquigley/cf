@@ -329,7 +329,7 @@ func TestFlexibleSetterArray(t *testing.T) {
 }
 
 func TestVariableResolver(t *testing.T) {
-	root := &struct{
+	root := &struct {
 		Id string
 	}{}
 
@@ -377,7 +377,7 @@ func TestVariableResolver(t *testing.T) {
 }
 
 func TestInlineVariables(t *testing.T) {
-	root := &struct{
+	root := &struct {
 		Id string
 	}{}
 
@@ -411,7 +411,7 @@ func TestCustomEnum(t *testing.T) {
 		Val CustomEnum
 	}
 
-	root := &struct{
+	root := &struct {
 		Subs []*SubStruct
 	}{}
 
@@ -452,4 +452,18 @@ func TestCustomEnum(t *testing.T) {
 	assert.Equal(t, 2, len(root.Subs))
 	assert.Equal(t, Val1, root.Subs[0].Val)
 	assert.Equal(t, Val2, root.Subs[1].Val)
+}
+
+func TestFloatWithIntData(t *testing.T) {
+	basic := &struct {
+		FloatValue float64
+	}{}
+
+	var data = map[string]interface{}{
+		"float_value": 56,
+	}
+
+	err := Bind(basic, data, DefaultOptions())
+	assert.Nil(t, err)
+	assert.Equal(t, float64(56.0), basic.FloatValue)
 }
