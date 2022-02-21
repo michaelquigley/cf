@@ -160,19 +160,12 @@ func TestNestedWithTypeWiring(t *testing.T) {
 
 	opt := DefaultOptions()
 	opt.AddInstantiator(reflect.TypeOf(nestedType{}), func() interface{} { return newNestedType() })
-	opt.AddWiring(reflect.TypeOf(nestedType{}), func(cf interface{}) error {
-		if v, ok := cf.(*nestedType); ok {
-			v.Count = v.Count * 2
-		}
-		return nil
-	})
 
 	err := Bind(root, data, opt)
 	assert.Nil(t, err)
 	assert.Equal(t, "TestNested", root.Id)
 	assert.NotNil(t, root.Nested)
 	assert.Equal(t, "Different", root.Nested.Name)
-	assert.Equal(t, 66, root.Nested.Count) // type wiring
 }
 
 func TestNestedWithDefaultInstantiator(t *testing.T) {

@@ -190,16 +190,6 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 			}
 		}
 	}
-	// execute wirings for type
-	if opt.Wirings != nil {
-		if wirings, found := opt.Wirings[valueFromPtr(reflect.TypeOf(cf))]; found {
-			for _, wiring := range wirings {
-				if err := wiring(cf); err != nil {
-					return errors.Wrapf(err, "error wiring [%s]", cfV.Elem().Type().Name())
-				}
-			}
-		}
-	}
 	return nil
 }
 

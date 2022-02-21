@@ -24,7 +24,6 @@ import (
 type Instantiator func() interface{}
 type Setter func(v interface{}, f reflect.Value, opt *Options) error
 type FlexibleSetter func(v interface{}, opt *Options) (interface{}, error)
-type Wiring func(cf interface{}) error
 type NameConverter func(f reflect.StructField) string
 type VariableResolver func(name string) (interface{}, bool)
 
@@ -32,7 +31,6 @@ type Options struct {
 	Instantiators         map[reflect.Type]Instantiator
 	Setters               map[reflect.Type]Setter
 	FlexibleSetters       map[string]FlexibleSetter
-	Wirings               map[reflect.Type][]Wiring
 	NameConverter         NameConverter
 	VariableResolverChain []VariableResolver
 }
@@ -81,14 +79,6 @@ func (opt *Options) AddFlexibleSetter(typeName string, fs FlexibleSetter) *Optio
 		opt.FlexibleSetters = make(map[string]FlexibleSetter)
 	}
 	opt.FlexibleSetters[typeName] = fs
-	return opt
-}
-
-func (opt *Options) AddWiring(t reflect.Type, w Wiring) *Options {
-	if opt.Wirings == nil {
-		opt.Wirings = make(map[reflect.Type][]Wiring)
-	}
-	opt.Wirings[t] = append(opt.Wirings[t], w)
 	return opt
 }
 
