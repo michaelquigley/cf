@@ -121,7 +121,7 @@ func Bind(cf interface{}, data map[string]interface{}, opt *Options) error {
 												if t, ok := t.(string); ok {
 													if opt.FlexibleSetters != nil {
 														if fs, found := opt.FlexibleSetters[t]; found {
-															elem, err := fs(v, opt)
+															elem, err := fs(sliceV, opt)
 															if err != nil {
 																return errors.Wrapf(err, "flexible setter for field '%v'", fd.name)
 															}
