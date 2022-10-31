@@ -40,6 +40,11 @@ type dumpCfNestedArray struct {
 	Tinies []*dumpCfTiny
 }
 
+type dumpCfElided struct {
+	Id  string
+	Key string `cf:"+elide"`
+}
+
 func TestDumpStruct(t *testing.T) {
 	cf := &dumpCfTiny{"testing"}
 	fmt.Println(Dump(cf, DefaultOptions()))
@@ -59,4 +64,10 @@ func TestDumpNestedArray(t *testing.T) {
 	cf.Tinies = append(cf.Tinies, &dumpCfTiny{"a"})
 	cf.Tinies = append(cf.Tinies, &dumpCfTiny{"b"})
 	fmt.Println(Dump(cf, DefaultOptions()))
+}
+
+func TestDumpElided(t *testing.T) {
+	cf := &dumpCfElided{Id: "id", Key: "s3c437"}
+	out := Dump(cf, DefaultOptions())
+	fmt.Println(out)
 }

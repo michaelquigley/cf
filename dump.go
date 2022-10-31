@@ -45,7 +45,11 @@ func dumpStruct(v reflect.Value, indent int, opt *Options) string {
 	for i := 0; i < v.NumField(); i++ {
 		if v.Field(i).CanInterface() {
 			fd := parseFieldData(v.Type().Field(i), opt)
-			out += nTabs(indent+1) + fmt.Sprintf(format, fd.name) + " = " + dump(v.Field(i), indent, opt) + "\n"
+			if !fd.elide {
+				out += nTabs(indent+1) + fmt.Sprintf(format, fd.name) + " = " + dump(v.Field(i), indent, opt) + "\n"
+			} else {
+				out += nTabs(indent+1) + fmt.Sprintf(format, fd.name) + " = <ELIDED>\n"
+			}
 		}
 	}
 	out += nTabs(indent) + "}"
