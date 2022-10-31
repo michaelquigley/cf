@@ -207,7 +207,7 @@ type fieldData struct {
 	name     string
 	skip     bool
 	required bool
-	elide    bool
+	secret   bool
 }
 
 func parseFieldData(v reflect.StructField, opt *Options) fieldData {
@@ -220,8 +220,8 @@ func parseFieldData(v reflect.StructField, opt *Options) fieldData {
 				fd.required = true
 			} else if token == "+skip" {
 				fd.skip = true
-			} else if token == "+elide" {
-				fd.elide = true
+			} else if token == "+secret" {
+				fd.secret = true
 			} else {
 				fd.name = token
 			}
